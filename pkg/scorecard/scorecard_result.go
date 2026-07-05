@@ -220,6 +220,9 @@ func (r *Result) AsString(writer io.Writer, checkDocs docChecks.Doc, opt *AsStri
 
 		doc := cdoc.GetDocumentationURL(r.Scorecard.CommitSHA)
 		x = append(x, localizedCheckName(row.Name, opt.Locale), row.Reason)
+		if opt.Locale == options.LocaleZhCN {
+			x = append(x, localizedRemediation(row.Name))
+		}
 		if opt.Details {
 			details, show := detailsToString(row.Details, opt.LogLevel)
 			if show {
@@ -259,6 +262,9 @@ func (r *Result) AsString(writer io.Writer, checkDocs docChecks.Doc, opt *AsStri
 	}
 	table := tablewriter.NewTable(writer, tablewriter.WithConfig(cfg), tablewriter.WithRendition(rendition))
 	header := []string{"Score", "Name", "Reason"}
+	if opt.Locale == options.LocaleZhCN {
+		header = append(header, "中文整改建议")
+	}
 	if opt.Details {
 		header = append(header, "Details")
 	}
@@ -309,6 +315,37 @@ func localizedCheckName(name, locale string) string {
 		return name
 	}
 	return fmt.Sprintf("%s（%s）", name, zhName)
+}
+
+var zhCNRemediations = map[string]string{
+	checks.CheckBinaryArtifacts:      "避免将可执行文件、构建产物或压缩包直接提交到仓库，改用可信发布流程托管产物。",
+	checks.CheckBranchProtection:     "开启默认分支保护，禁止强推和删除，要求 PR 评审后再合并。",
+	checks.CheckCIIBestPractices:     "补充 OpenSSF Best Practices 信息，按项目成熟度逐步完善安全实践。",
+	checks.CheckCITests:              "为主分支和 PR 配置自动化测试，确保代码合并前经过 CI 验证。",
+	checks.CheckCodeReview:           "要求关键代码通过 Pull Request 或 Merge Request 评审后再合并。",
+	checks.CheckContributors:         "保持维护者和贡献者活跃，避免项目长期无人响应安全问题。",
+	checks.CheckDangerousWorkflow:    "审查 CI 工作流中的高危触发器和脚本注入点，避免未信任 PR 获得高权限执行。",
+	checks.CheckDependencyUpdateTool: "配置 Dependabot、Renovate 或企业内部依赖更新工具，及时跟进安全补丁。",
+	checks.CheckFuzzing:              "为解析器、输入处理和关键库函数补充模糊测试，降低未知崩溃风险。",
+	checks.CheckLicense:              "在仓库根目录提供明确的开源许可证文件，方便企业合规评估。",
+	checks.CheckMaintained:           "定期提交维护更新，及时响应 issue、PR 和安全漏洞报告。",
+	checks.CheckPackaging:            "使用自动化、可审计的发布流程生成包和镜像，减少人工发布风险。",
+	checks.CheckPinnedDependencies:   "固定 GitHub Actions、容器镜像和构建依赖版本，优先使用 commit hash 或 digest。",
+	checks.CheckSAST:                 "在 CI 中启用静态应用安全测试，覆盖主分支和合并请求。",
+	checks.CheckSBOM:                 "生成并发布 SBOM，帮助安全团队识别依赖和供应链风险。",
+	checks.CheckSecurityPolicy:       "添加 SECURITY.md，说明漏洞上报方式、响应范围和处理流程。",
+	checks.CheckSignedReleases:       "对 release、制品或校验文件进行签名，便于用户验证下载内容未被篡改。",
+	checks.CheckTokenPermissions:     "按最小权限配置 CI Token，避免默认写权限或 write-all 权限。",
+	checks.CheckVulnerabilities:      "定期扫描依赖漏洞，及时升级受影响组件并记录修复情况。",
+	checks.CheckWebHooks:             "为 Webhook 配置密钥并限制接收端权限，避免伪造请求触发敏感操作。",
+}
+
+func localizedRemediation(name string) string {
+	remediation, ok := zhCNRemediations[name]
+	if !ok {
+		return "参考官方文档评估该检查项，并结合国内研发流程制定整改措施。"
+	}
+	return remediation
 }
 
 //nolint:gocognit,gocyclo // nothing better to do right now

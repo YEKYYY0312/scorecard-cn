@@ -107,6 +107,33 @@ func TestResult_AsString_zhCNLocalizesCheckName(t *testing.T) {
 	}
 }
 
+func TestResult_AsString_zhCNIncludesRemediation(t *testing.T) {
+	t.Parallel()
+
+	var output bytes.Buffer
+	result := mockScorecardResultCheck1(t)
+	result.Checks[0].Name = "Branch-Protection"
+
+	err := result.AsString(&output, jsonMockDocRead(), &AsStringResultOption{
+		LogLevel: log.InfoLevel,
+		Locale:   "zh-CN",
+	})
+	if err != nil {
+		t.Fatalf("AsString() error = %v", err)
+	}
+
+	got := output.String()
+	wants := []string{
+		"中文整改建议",
+		"开启默认分支保护，禁止强推和删除，要求 PR 评审后再合并。",
+	}
+	for _, want := range wants {
+		if !strings.Contains(got, want) {
+			t.Fatalf("AsString() missing %q in:\n%s", want, got)
+		}
+	}
+}
+
 func Test_formatResults_outputToFile(t *testing.T) {
 	t.Parallel()
 	type args struct {

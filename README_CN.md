@@ -38,13 +38,20 @@ go run main.go --repo=github.com/ossf/scorecard --format=json
 go run main.go --repo=github.com/ossf/scorecard --checks=Pinned-Dependencies,Security-Policy
 ```
 
-### 输出中文检查项名称
+### 输出中文检查项名称和整改建议
 
 ```powershell
 go run main.go --repo=github.com/ossf/scorecard --show-details --locale=zh-CN
 ```
 
-启用后，默认文本报告中的检查项名称会显示为 `Branch-Protection（分支保护）` 这类中英文组合，方便国内研发、安全和管理团队阅读。JSON 输出仍保留原始字段，避免破坏自动化集成。
+启用后，默认文本报告中的检查项名称会显示为 `Branch-Protection（分支保护）` 这类中英文组合，并新增 `中文整改建议` 列，例如：
+
+```text
+Branch-Protection（分支保护）
+中文整改建议：开启默认分支保护，禁止强推和删除，要求 PR 评审后再合并。
+```
+
+JSON 输出仍保留原始字段，避免破坏自动化集成。
 
 ## 国内化改造方向
 
