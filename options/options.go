@@ -37,6 +37,7 @@ type Options struct {
 	Commit          string
 	LogLevel        string
 	Format          string
+	Locale          string
 	NPM             string
 	PyPI            string
 	RubyGems        string
@@ -61,6 +62,7 @@ func New() *Options {
 	opts := &Options{
 		Commit:   DefaultCommit,
 		Format:   FormatDefault,
+		Locale:   DefaultLocale,
 		LogLevel: DefaultLogLevel,
 		FileMode: FileModeArchive,
 	}
@@ -88,6 +90,11 @@ const (
 	// FormatInToto specifies that results should be output in an in-toto statement.
 	FormatInToto = "intoto"
 
+	// DefaultLocale keeps the original English-only display.
+	DefaultLocale = "en"
+	// LocaleZhCN enables Chinese labels for human-readable output.
+	LocaleZhCN = "zh-CN"
+
 	// File Modes
 	// FileModeGit specifies that files should be fetched using git.
 	FileModeGit = "git"
@@ -113,6 +120,7 @@ var (
 	errCommitIsEmpty          = errors.New("commit should be non-empty")
 	errFormatNotSupported     = errors.New("unsupported format")
 	errFileModeNotSupported   = errors.New("unsupported file mode")
+	errLocaleNotSupported     = errors.New("unsupported locale")
 	errPolicyFileNotSupported = errors.New("policy file is not supported yet")
 	errRawOptionNotSupported  = errors.New("raw option is not supported yet")
 	errRepoOptionMustBeSet    = errors.New(
@@ -189,6 +197,13 @@ func (o *Options) Validate() error {
 		errs = append(
 			errs,
 			errFileModeNotSupported,
+		)
+	}
+
+	if !validateLocale(o.Locale) {
+		errs = append(
+			errs,
+			errLocaleNotSupported,
 		)
 	}
 
@@ -272,6 +287,15 @@ func validateFormat(format string) bool {
 func validateFileMode(mode string) bool {
 	switch strings.ToLower(mode) {
 	case FileModeGit, FileModeArchive:
+		return true
+	default:
+		return false
+	}
+}
+
+func validateLocale(locale string) bool {
+	switch locale {
+	case "", DefaultLocale, LocaleZhCN:
 		return true
 	default:
 		return false

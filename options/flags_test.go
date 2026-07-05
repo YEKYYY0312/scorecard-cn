@@ -43,6 +43,7 @@ func TestOptions_AddFlags(t *testing.T) {
 				ChecksToRun: []string{"check1", "check2"},
 				PolicyFile:  "policy-file",
 				Format:      "json",
+				Locale:      "zh-CN",
 				ResultsFile: "result.json",
 			},
 		},
@@ -101,6 +102,11 @@ func TestOptions_AddFlags(t *testing.T) {
 			// check FlagFormat
 			if cmd.Flag(FlagFormat).Value.String() != tt.opts.Format {
 				t.Errorf("expected FlagFormat to be %q, but got %q", tt.opts.Format, cmd.Flag(FlagFormat).Value.String())
+			}
+
+			// check FlagLocale
+			if cmd.Flag(FlagLocale).Value.String() != tt.opts.Locale {
+				t.Errorf("expected FlagLocale to be %q, but got %q", tt.opts.Locale, cmd.Flag(FlagLocale).Value.String())
 			}
 
 			// check FlagResultsFile

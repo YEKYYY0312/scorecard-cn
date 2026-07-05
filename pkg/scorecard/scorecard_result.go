@@ -70,6 +70,7 @@ type AsStringResultOption struct {
 	LogLevel    log.Level
 	Details     bool
 	Annotations bool
+	Locale      string
 }
 
 func scoreToString(s float64) string {
@@ -145,6 +146,7 @@ func FormatResults(
 			Details:     opts.ShowDetails,
 			Annotations: opts.ShowAnnotations,
 			LogLevel:    log.ParseLevel(opts.LogLevel),
+			Locale:      opts.Locale,
 		}
 		err = results.AsString(output, doc, o)
 	case options.FormatSarif:
@@ -195,6 +197,7 @@ func (r *Result) AsString(writer io.Writer, checkDocs docChecks.Doc, opt *AsStri
 			LogLevel:    log.DefaultLevel,
 			Details:     false,
 			Annotations: false,
+			Locale:      options.DefaultLocale,
 		}
 	}
 
@@ -216,7 +219,7 @@ func (r *Result) AsString(writer io.Writer, checkDocs docChecks.Doc, opt *AsStri
 		}
 
 		doc := cdoc.GetDocumentationURL(r.Scorecard.CommitSHA)
-		x = append(x, row.Name, row.Reason)
+		x = append(x, localizedCheckName(row.Name, opt.Locale), row.Reason)
 		if opt.Details {
 			details, show := detailsToString(row.Details, opt.LogLevel)
 			if show {
@@ -272,6 +275,40 @@ func (r *Result) AsString(writer io.Writer, checkDocs docChecks.Doc, opt *AsStri
 	}
 
 	return nil
+}
+
+var zhCNCheckNames = map[string]string{
+	checks.CheckBinaryArtifacts:      "二进制产物",
+	checks.CheckBranchProtection:     "分支保护",
+	checks.CheckCIIBestPractices:     "CII 最佳实践",
+	checks.CheckCITests:              "CI 测试",
+	checks.CheckCodeReview:           "代码评审",
+	checks.CheckContributors:         "贡献者活跃度",
+	checks.CheckDangerousWorkflow:    "危险工作流",
+	checks.CheckDependencyUpdateTool: "依赖更新工具",
+	checks.CheckFuzzing:              "模糊测试",
+	checks.CheckLicense:              "开源许可证",
+	checks.CheckMaintained:           "维护状态",
+	checks.CheckPackaging:            "软件包发布",
+	checks.CheckPinnedDependencies:   "依赖固定",
+	checks.CheckSAST:                 "静态应用安全测试",
+	checks.CheckSBOM:                 "软件物料清单",
+	checks.CheckSecurityPolicy:       "安全策略",
+	checks.CheckSignedReleases:       "发布签名",
+	checks.CheckTokenPermissions:     "Token 最小权限",
+	checks.CheckVulnerabilities:      "已知漏洞",
+	checks.CheckWebHooks:             "Webhook 安全",
+}
+
+func localizedCheckName(name, locale string) string {
+	if locale != options.LocaleZhCN {
+		return name
+	}
+	zhName, ok := zhCNCheckNames[name]
+	if !ok {
+		return name
+	}
+	return fmt.Sprintf("%s（%s）", name, zhName)
 }
 
 //nolint:gocognit,gocyclo // nothing better to do right now

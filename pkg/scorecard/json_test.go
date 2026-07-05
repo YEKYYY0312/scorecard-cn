@@ -61,6 +61,15 @@ func jsonMockDocRead() *mockDoc {
 			tags:        []string{"not-used1", "not-used2"},
 			remediation: []string{"not-used1", "not-used2"},
 		},
+		"Branch-Protection": {
+			name:        "Branch-Protection",
+			risk:        "High",
+			short:       "short description for Branch-Protection",
+			description: "not used",
+			url:         "https://github.com/ossf/scorecard/blob/main/docs/checks.md#branch-protection",
+			tags:        []string{"not-used1", "not-used2"},
+			remediation: []string{"not-used1", "not-used2"},
+		},
 	}
 
 	m := mockDoc{checks: d}

@@ -71,6 +71,9 @@ const (
 	// FlagFormat is the flag name for specifying output format.
 	FlagFormat = "format"
 
+	// FlagLocale is the flag name for specifying human-readable output language.
+	FlagLocale = "locale"
+
 	// FlagResultsFile is the flag name for specifying output file.
 	FlagResultsFile = "output"
 
@@ -235,6 +238,13 @@ func (o *Options) AddFlags(cmd *cobra.Command) {
 			"output format. Possible values are: %s",
 			strings.Join(allowedFormats, ", "),
 		),
+	)
+
+	cmd.Flags().StringVar(
+		&o.Locale,
+		FlagLocale,
+		o.Locale,
+		fmt.Sprintf("language for human-readable output. Possible values are: %s, %s", DefaultLocale, LocaleZhCN),
 	)
 
 	cmd.Flags().StringVarP(

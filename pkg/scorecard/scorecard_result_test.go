@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -81,6 +82,28 @@ func mockScorecardResultCheck1(t *testing.T) *Result {
 			},
 		},
 		Metadata: []string{},
+	}
+}
+
+func TestResult_AsString_zhCNLocalizesCheckName(t *testing.T) {
+	t.Parallel()
+
+	var output bytes.Buffer
+	result := mockScorecardResultCheck1(t)
+	result.Checks[0].Name = "Branch-Protection"
+
+	err := result.AsString(&output, jsonMockDocRead(), &AsStringResultOption{
+		LogLevel: log.InfoLevel,
+		Locale:   "zh-CN",
+	})
+	if err != nil {
+		t.Fatalf("AsString() error = %v", err)
+	}
+
+	got := output.String()
+	want := "Branch-Protection（分支保护）"
+	if !strings.Contains(got, want) {
+		t.Fatalf("AsString() missing localized check name %q in:\n%s", want, got)
 	}
 }
 

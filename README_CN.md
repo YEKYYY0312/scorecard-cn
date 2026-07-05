@@ -38,6 +38,14 @@ go run main.go --repo=github.com/ossf/scorecard --format=json
 go run main.go --repo=github.com/ossf/scorecard --checks=Pinned-Dependencies,Security-Policy
 ```
 
+### 输出中文检查项名称
+
+```powershell
+go run main.go --repo=github.com/ossf/scorecard --show-details --locale=zh-CN
+```
+
+启用后，默认文本报告中的检查项名称会显示为 `Branch-Protection（分支保护）` 这类中英文组合，方便国内研发、安全和管理团队阅读。JSON 输出仍保留原始字段，避免破坏自动化集成。
+
 ## 国内化改造方向
 
 ### 中文化报告
@@ -69,4 +77,3 @@ go run main.go --repo=github.com/ossf/scorecard --checks=Pinned-Dependencies,Sec
 ## 简历描述示例
 
 > 基于 OpenSSF Scorecard 二次开发开源供应链安全评分工具，面向国内企业研发环境补充中文报告、Gitee/私有 GitLab 适配规划、CI/CD 安全检查说明和本土化落地文档，覆盖分支保护、依赖固定、危险工作流、Token 最小权限和安全策略等供应链风险。
-
