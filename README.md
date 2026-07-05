@@ -1,5 +1,9 @@
 # OpenSSF Scorecard
 
+> This repository is a localized derivative of [OpenSSF Scorecard](https://github.com/ossf/scorecard), focused on Chinese supply chain security scenarios.
+>
+> 中文国内化版本说明见 [README_CN.md](README_CN.md)。本项目新增 `--locale=zh-CN` 中文检查项输出、中文整改建议和 `internal/localization` 本土化报告层。
+
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/ossf/scorecard/badge)](https://scorecard.dev/viewer/?uri=github.com/ossf/scorecard)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/5621/badge)](https://www.bestpractices.dev/projects/5621)
 [![build](https://github.com/ossf/scorecard/actions/workflows/main.yml/badge.svg)](https://github.com/ossf/scorecard/actions/workflows/main.yml)
