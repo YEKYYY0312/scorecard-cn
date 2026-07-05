@@ -1,0 +1,139 @@
+// Copyright 2021 OpenSSF Scorecard Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package e2e
+
+import (
+	"context"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+
+	"github.com/ossf/scorecard/v5/checker"
+	"github.com/ossf/scorecard/v5/checks"
+	"github.com/ossf/scorecard/v5/clients"
+	"github.com/ossf/scorecard/v5/clients/azuredevopsrepo"
+	"github.com/ossf/scorecard/v5/clients/githubrepo"
+	scut "github.com/ossf/scorecard/v5/utests"
+)
+
+var _ = Describe("E2E TEST:"+checks.CheckVulnerabilities, func() {
+	Context("E2E TEST:Validating vulnerabilities status", func() {
+		It("Should return that there are vulnerabilities", func() {
+			repo, err := githubrepo.MakeGithubRepo("ossf-tests/scorecard-check-vulnerabilities-open62541")
+			Expect(err).Should(BeNil())
+			repoClient := githubrepo.CreateGithubRepoClient(context.Background(), logger)
+			err = repoClient.InitRepo(repo, clients.HeadSHA, 0)
+			Expect(err).Should(BeNil())
+
+			dl := scut.TestDetailLogger{}
+			checkRequest := checker.CheckRequest{
+				Ctx:                   context.Background(),
+				RepoClient:            repoClient,
+				VulnerabilitiesClient: clients.DefaultVulnerabilitiesClient(),
+				Repo:                  repo,
+				Dlogger:               &dl,
+			}
+			expected := scut.TestReturn{
+				Error:         nil,
+				Score:         checker.MaxResultScore - 4, // 4 vulnerabilities remove 4 points.
+				NumberOfWarn:  4,
+				NumberOfInfo:  0,
+				NumberOfDebug: 0,
+			}
+			result := checks.Vulnerabilities(&checkRequest)
+			// New version.
+			scut.ValidateTestReturn(GinkgoTB(), "osv vulnerabilities", &expected, &result, &dl)
+			Expect(repoClient.Close()).Should(BeNil())
+		})
+		It("Should return that there are vulnerabilities at commit", func() {
+			repo, err := githubrepo.MakeGithubRepo("ossf-tests/scorecard-check-vulnerabilities-open62541")
+			Expect(err).Should(BeNil())
+			repoClient := githubrepo.CreateGithubRepoClient(context.Background(), logger)
+			err = repoClient.InitRepo(repo, "de6367caa31b59e2156f83b04c2f30611b7ac393", 0)
+			Expect(err).Should(BeNil())
+
+			dl := scut.TestDetailLogger{}
+			checkRequest := checker.CheckRequest{
+				Ctx:                   context.Background(),
+				RepoClient:            repoClient,
+				VulnerabilitiesClient: clients.DefaultVulnerabilitiesClient(),
+				Repo:                  repo,
+				Dlogger:               &dl,
+			}
+			expected := scut.TestReturn{
+				Error:         nil,
+				Score:         checker.MaxResultScore - 4, // 4 vulnerabilities remove 4 points.
+				NumberOfWarn:  4,
+				NumberOfInfo:  0,
+				NumberOfDebug: 0,
+			}
+			result := checks.Vulnerabilities(&checkRequest)
+			// New version.
+			scut.ValidateTestReturn(GinkgoTB(), "osv vulnerabilities", &expected, &result, &dl)
+			Expect(repoClient.Close()).Should(BeNil())
+		})
+		It("Should return that there are vulnerable packages", func() {
+			repo, err := githubrepo.MakeGithubRepo("ossf-tests/scorecard-check-osv-e2e")
+			Expect(err).Should(BeNil())
+			repoClient := githubrepo.CreateGithubRepoClient(context.Background(), logger)
+			err = repoClient.InitRepo(repo, "2a81bfbc691786d6b8226a4092cca4f1509c842d", 0)
+			Expect(err).Should(BeNil())
+
+			dl := scut.TestDetailLogger{}
+			checkRequest := checker.CheckRequest{
+				Ctx:                   context.Background(),
+				RepoClient:            repoClient,
+				VulnerabilitiesClient: clients.DefaultVulnerabilitiesClient(),
+				Repo:                  repo,
+				Dlogger:               &dl,
+			}
+			expected := scut.TestReturn{
+				Error:         nil,
+				Score:         checker.MaxResultScore - 2, // 2 vulnerabilities remove 2 points.
+				NumberOfWarn:  2,
+				NumberOfInfo:  0,
+				NumberOfDebug: 0,
+			}
+			result := checks.Vulnerabilities(&checkRequest)
+			// New version.
+			scut.ValidateTestReturn(GinkgoTB(), "osv vulnerabilities", &expected, &result, &dl)
+			Expect(repoClient.Close()).Should(BeNil())
+		})
+		It("Should return vulnerabilities check runs - Azure DevOps", func() {
+			skipIfTokenIsNot(azureDevOpsPATTokenType, "Azure DevOps only")
+
+			repo, err := azuredevopsrepo.MakeAzureDevOpsRepo("https://dev.azure.com/openssf-scorecard/scorecard-testing/_git/scorecard-testing")
+			Expect(err).Should(BeNil())
+			repoClient, err := azuredevopsrepo.CreateAzureDevOpsClient(context.Background(), repo)
+			Expect(err).Should(BeNil())
+			err = repoClient.InitRepo(repo, clients.HeadSHA, 0)
+			Expect(err).Should(BeNil())
+
+			dl := scut.TestDetailLogger{}
+			checkRequest := checker.CheckRequest{
+				Ctx:                   context.Background(),
+				RepoClient:            repoClient,
+				VulnerabilitiesClient: clients.DefaultVulnerabilitiesClient(),
+				Repo:                  repo,
+				Dlogger:               &dl,
+			}
+			result := checks.Vulnerabilities(&checkRequest)
+			Expect(result.Error).Should(BeNil())
+			// Test repo has no known vulnerabilities, expect max score.
+			Expect(result.Score).Should(BeNumerically("==", checker.MaxResultScore))
+			Expect(repoClient.Close()).Should(BeNil())
+		})
+	})
+})

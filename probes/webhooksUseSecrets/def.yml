@@ -1,0 +1,42 @@
+# Copyright 2023 OpenSSF Scorecard Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+id: webhooksUseSecrets
+lifecycle: experimental
+short: This check determines whether the webhooks defined in the repository have secrets configured to authenticate the origins of requests.
+motivation: >
+  Webhooks without secret authorization have the potential to make projects accessible to third-parties.
+implementation: >
+  The probe checks all webhooks of a project and checks whether each uses secret authentication.
+outcome:
+  - The probe returns one OutcomeTrue per webhook with secret authorization.
+  - The probe returns one OutcomeFalse per webhook without secret authorization.
+  - Projects without webhooks receive an OutcomeNotApplicable.
+remediation:
+  onOutcome: False
+  effort: Low
+  text:
+    - Check if the service your webhooks is configured with supports secrets.
+    - If there is support for secret authentication, set the secret in the webhook configuration. See [Setting up a webhook](https://docs.github.com/en/developers/webhooks-and-events/webhooks/creating-webhooks#setting-up-a-webhook).
+    - If there is no support for secret authentication, request the webhook service implement secret authentication functionality by following [these directions](https://docs.github.com/en/developers/webhooks-and-events/webhooks/securing-your-webhooks).
+  markdown:
+    - Check if the service your webhooks is configured with supports secrets.
+    - If there is support for secret authentication, set the secret in the webhook configuration. See [Setting up a webhook](https://docs.github.com/en/developers/webhooks-and-events/webhooks/creating-webhooks#setting-up-a-webhook).
+    - If there is no support for secret authentication, request the webhook service implement secret authentication functionality by following [these directions](https://docs.github.com/en/developers/webhooks-and-events/webhooks/securing-your-webhooks).
+ecosystem:
+  languages:
+    - all
+  clients:
+    - github
+    - gitlab

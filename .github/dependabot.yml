@@ -1,0 +1,59 @@
+version: 2
+updates:
+- package-ecosystem: gomod
+  directories:
+    - "/"
+    - "/tools"
+  schedule:
+    interval: weekly
+  rebase-strategy: disabled
+  commit-message:
+      prefix: ":seedling:"
+  groups:
+    gomod:
+      patterns:
+        - "*"
+      exclude-patterns:
+        - "github.com/rhysd/actionlint" # has had breaking changes in the past
+        - "github.com/google/osv-scanner" # influences Vulnerabilities check and may require go directive fixes
+        - "github.com/golangci/golangci-lint" # require linter fixes before merge
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule:
+      interval: "weekly"
+  rebase-strategy: disabled
+  commit-message:
+      prefix: ":seedling:"
+  groups:
+    github-actions:
+      patterns:
+        - "*"
+      # These actions directly influence the build process and are excluded from grouped updates
+      exclude-patterns:
+        - "actions/setup-go"
+        - "arduino/setup-protoc"
+        - "goreleaser/goreleaser-action"
+- package-ecosystem: docker
+  directories:
+    - "/"
+    - "/cron/internal/bq"
+    - "/cron/internal/worker"
+    - "/cron/internal/webhook"
+    - "/cron/internal/controller"
+    - "/cron/internal/cii"
+    - "/clients/githubrepo/roundtripper/tokens/server"
+    - "/attestor"
+  schedule:
+    interval: weekly
+  rebase-strategy: disabled
+  commit-message:
+      prefix: ":seedling:"
+  # currently needed to get PRs which actually update multiple directories in a single PR
+  # https://github.com/dependabot/dependabot-core/issues/2178#issuecomment-2109164992
+  groups:
+    golang:
+      patterns:
+        - "golang"
+    distroless:
+      patterns:
+        - "distroless/base"

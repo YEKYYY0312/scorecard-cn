@@ -1,0 +1,44 @@
+# Copyright 2023 OpenSSF Scorecard Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+id: hasDangerousWorkflowScriptInjection
+lifecycle: stable
+short: Check whether the project has GitHub Actions workflows that enable script injection.
+motivation: >
+  Script injections allow attackers to use untrusted input to access privileged resources (code execution, secret exfiltration, etc.)
+implementation: >
+  The probe analyzes the repository's workflows for known dangerous patterns.
+outcome:
+  - The probe returns one finding with OutcomeTrue for each dangerous script injection pattern detected. Each finding may include a suggested patch to fix the respective script injection.
+  - If no dangerous patterns are found, the probe returns one finding with OutcomeFalse.
+remediation:
+  onOutcome: True
+  effort: Low
+  text:
+    - Avoid the dangerous workflow patterns.
+  markdown:
+    - Avoid the dangerous workflow patterns.
+    - See [this document](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#understanding-the-risk-of-script-injections) for information on avoiding and mitigating the risk of script injections.
+    - |
+      Here is a proposed patch to eliminate this risk:
+      ```yml
+      ${{ metadata.patch }}
+      ```
+ecosystem:
+  languages:
+    - all
+  clients:
+    - github
+    - gitlab
+    - localdir

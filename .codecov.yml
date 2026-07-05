@@ -1,0 +1,43 @@
+---
+codecov:
+  notify:
+    after_n_builds: 1
+    require_ci_to_pass: yes
+
+ignore:
+  - "**/*.pb.go"
+  - "cron/**/*"
+  - "clients/mockclients/**/*"
+  # ignoring them as these are internal tools for generating docs.
+  - "docs/**/*"
+  # this is the runner
+  - "main.go"
+
+coverage:
+  precision: 2
+  round: down
+  range: 50..75
+
+  status:
+    project:
+      default:
+        informational: true
+        if_not_found: success
+        if_no_uploads: success
+        if_ci_failed: error
+    patch:
+      default:
+        # patch coverage should be within 10% of existing coverage
+        target: auto
+        threshold: 10%
+        if_not_found: success
+        if_no_uploads: success
+        if_ci_failed: error
+    changes: false
+
+comment:
+  layout: "header, diff"
+  behavior: default
+  require_changes: false
+github_checks:
+  annotations: true

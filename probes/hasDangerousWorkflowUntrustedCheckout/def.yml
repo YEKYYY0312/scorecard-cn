@@ -1,0 +1,41 @@
+# Copyright 2023 OpenSSF Scorecard Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+id: hasDangerousWorkflowUntrustedCheckout
+lifecycle: stable
+short: Check whether the project has GitHub Actions workflows that does untrusted checkouts.
+motivation: >
+  GitHub workflows triggered with pull_request_target or workflow_run have write permission to the target repository and access to target repository secrets.
+  Combined with a dangerous checkout of PR contents, attackers may be able to compromise the repository, for example, by using build scripts controlled by the PR author.
+implementation: >
+  The probe iterates through the workflows looking for pull_request_target and workflow_run triggers which checkout references from a PR.
+  This check does not detect whether untrusted code checkouts are used safely, for example, only on pull request that have been assigned a label.
+outcome:
+  - The probe returns one finding with OutcomeTrue per untrusted checkout.
+  - The probe returns one finding with OutcomeFalse if no untrusted checkouts are detected.
+remediation:
+  onOutcome: True
+  effort: Low
+  text:
+    - Avoid the dangerous workflow patterns.
+  markdown:
+    - Avoid the dangerous workflow patterns.
+    - See [this post](https://securitylab.github.com/research/github-actions-preventing-pwn-requests/) for information on avoiding untrusted code checkouts.
+ecosystem:
+  languages:
+    - all
+  clients:
+    - github
+    - gitlab
+    - localdir
